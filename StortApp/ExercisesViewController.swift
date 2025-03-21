@@ -58,6 +58,8 @@ final class ExercisesViewController: UIViewController {
         tableView.keyboardDismissMode = .onDrag
         tableView.dataSource = self
         tableView.delegate = self
+        tableView.isScrollEnabled = false
+        tableView.allowsSelection = false
         tableView.translatesAutoresizingMaskIntoConstraints = false
         return tableView
     }()
@@ -67,6 +69,20 @@ final class ExercisesViewController: UIViewController {
         indicator.hidesWhenStopped = true
         indicator.translatesAutoresizingMaskIntoConstraints = false
         return indicator
+    }()
+    
+    private lazy var scrollView: UIScrollView = {
+        let scrollView = UIScrollView()
+        scrollView.translatesAutoresizingMaskIntoConstraints = false
+        scrollView.showsVerticalScrollIndicator = true
+        scrollView.showsHorizontalScrollIndicator = false
+        return scrollView
+    }()
+
+    private lazy var contentView: UIView = {
+        let view = UIView()
+        view.translatesAutoresizingMaskIntoConstraints = false
+        return view
     }()
     
     // MARK: - Filter Sections Data
@@ -103,30 +119,45 @@ final class ExercisesViewController: UIViewController {
         view.backgroundColor = .white
         title = "Упражнения"
         
-        view.addSubview(searchBar)
-        view.addSubview(filtersCollectionView)
-        view.addSubview(resultsTableView)
-        view.addSubview(activityIndicator)
+        view.addSubview(scrollView)
+        scrollView.addSubview(contentView)
+        
+        contentView.addSubview(searchBar)
+        contentView.addSubview(filtersCollectionView)
+        contentView.addSubview(resultsTableView)
+        contentView.addSubview(activityIndicator)
     }
-    
+
     private func setupConstraints() {
         NSLayoutConstraint.activate([
-            searchBar.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 8),
-            searchBar.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
-            searchBar.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
+            scrollView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            scrollView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+            
+            contentView.topAnchor.constraint(equalTo: scrollView.topAnchor),
+            contentView.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor),
+            contentView.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor),
+            contentView.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor),
+            contentView.widthAnchor.constraint(equalTo: scrollView.widthAnchor),
+            
+            searchBar.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 8),
+            searchBar.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
+            searchBar.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
             
             filtersCollectionView.topAnchor.constraint(equalTo: searchBar.bottomAnchor, constant: 8),
-            filtersCollectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            filtersCollectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            filtersCollectionView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
+            filtersCollectionView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
             filtersCollectionView.heightAnchor.constraint(equalToConstant: 500),
             
             resultsTableView.topAnchor.constraint(equalTo: filtersCollectionView.bottomAnchor),
-            resultsTableView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            resultsTableView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            resultsTableView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+            resultsTableView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
+            resultsTableView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
+            resultsTableView.heightAnchor.constraint(equalToConstant: 500), // Фиксированная высота для таблицы
+            resultsTableView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor),
             
-            activityIndicator.centerYAnchor.constraint(equalTo: view.centerYAnchor),
-            activityIndicator.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            activityIndicator.centerYAnchor.constraint(equalTo: contentView.centerYAnchor),
+            activityIndicator.centerXAnchor.constraint(equalTo: contentView.centerXAnchor)
         ])
     }
     
